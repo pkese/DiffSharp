@@ -35,25 +35,31 @@ type Backend =
         | Torch -> "Torch"
 
 type DType =
-    //| Float16
+    | Float16
     | Float32
     | Float64
+    | Int8
+    | Int16
     | Int32
     | Int64
 
     member internal x.Code =
         match x with
-        //| Float16 -> 0x000
+        | Float16 -> 0x000
         | Float32  -> 0x100
         | Float64 -> 0x200
-        | Int32 -> 0x400
-        | Int64 -> 0x800
+        | Int8 -> 0x300
+        | Int16 -> 0x400
+        | Int32 -> 0x500
+        | Int64 -> 0x600
 
     member internal x.Name =
         match x with
-        //| Float16 -> "Float16"
+        | Float16 -> "Float16"
         | Float32 -> "Float32"
         | Float64 -> "Float64"
+        | Int8 -> "Int8"
+        | Int16 -> "Int16"
         | Int32 -> "Int32"
         | Int64 -> "Int64"
 
@@ -202,6 +208,11 @@ and [<AbstractClass>]
     abstract member AsinT: unit -> RawTensor
     abstract member AcosT: unit -> RawTensor
     abstract member AtanT: unit -> RawTensor
+
+    member t.ToInt32() = t.Cast(Int32)
+    member t.ToInt64() = t.Cast(Int64)
+    member t.ToFloat32() = t.Cast(Float32)
+    member t.ToFloat64() = t.Cast(Float64)
 
 [<AutoOpen>]
 module Utils =
