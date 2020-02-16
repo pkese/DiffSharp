@@ -209,6 +209,8 @@ and [<AbstractClass>]
     abstract member AcosT: unit -> RawTensor
     abstract member AtanT: unit -> RawTensor
 
+    member t.ToInt8() = t.Cast(Int8)
+    member t.ToInt16() = t.Cast(Int16)
     member t.ToInt32() = t.Cast(Int32)
     member t.ToInt64() = t.Cast(Int64)
     member t.ToFloat32() = t.Cast(Float32)
