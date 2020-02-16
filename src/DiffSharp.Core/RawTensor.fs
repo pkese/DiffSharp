@@ -35,21 +35,24 @@ type Backend =
         | Torch -> "Torch"
 
 type DType =
-    | Float16
+    //| Float16
     | Float32
     | Float64
+    | Int32
 
     member internal x.Code =
         match x with
-        | Float16 -> 0x000
+        //| Float16 -> 0x000
         | Float32  -> 0x100
         | Float64 -> 0x200
+        | Int32 -> 0x400
 
     member internal x.Name =
         match x with
-        | Float16 -> "Float16"
+        //| Float16 -> "Float16"
         | Float32 -> "Float32"
         | Float64 -> "Float64"
+        | Int32 -> "Int32"
 
 type [<AbstractClass>]
      RawTensorStatics() = 
@@ -120,13 +123,13 @@ and [<AbstractClass>]
         let statics = RawTensorStatics.Get(?dtype=dtype, ?device=device, ?backend=backend)
         statics.RandomNormal(shape|>Seq.toArray)
 
-    static member Create(obj: obj, ?dtype, ?device, ?backend) =
+    static member Create(values: obj, ?dtype, ?device, ?backend) =
         let statics = RawTensorStatics.Get(?dtype=dtype, ?device=device, ?backend=backend)
-        statics.Create(obj)
+        statics.Create(values)
 
     abstract member CompareTo: RawTensor -> int
-    abstract member Create : obj -> RawTensor
-    abstract member CreateFromScalar : obj * int[] -> RawTensor
+    abstract member Create : values: obj -> RawTensor
+    abstract member CreateFromScalar : value: obj * shape: int[] -> RawTensor
     abstract member Copy : unit -> RawTensor
     abstract member StackTs: seq<RawTensor> -> RawTensor
     abstract member UnstackT: unit -> seq<RawTensor>
@@ -143,6 +146,7 @@ and [<AbstractClass>]
     abstract member ToValue: unit -> obj
     abstract member ToArray: unit -> System.Array
     abstract member Equals: RawTensor -> bool
+    abstract member Cast : DType -> RawTensor
     abstract member ApproximatelyEquals: RawTensor * float -> bool
     abstract member LtTT: RawTensor -> RawTensor
     abstract member GtTT: RawTensor -> RawTensor

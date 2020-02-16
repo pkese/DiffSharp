@@ -20,6 +20,14 @@ type Tensor =
         | TensorF(tp,_,_) -> tp.PrimalRaw
         | TensorR(tp,_,_,_,_) -> tp.PrimalRaw
 
+    member t.DType = t.PrimalRaw.DType
+
+    member t.Cast(dtype) =
+        match t with
+        | Tensor(tp) -> Tensor(tp.Cast(dtype))
+        | TensorF(_,_,_) -> failwith "cannot cast TensorF"
+        | TensorR(tp,_,_,_,_) -> failwith "cannot cast TensorR"
+
     member t.Depth =
         let rec depth x d =
             match x with
@@ -632,7 +640,7 @@ type Tensor =
 
     static member LeakyRelu (a:Tensor, ?negativeSlope:float) =
         let negativeSlope = defaultArg negativeSlope 0.01
-        Tensor.Max(Tensor.Create(0.), a) + negativeSlope * Tensor.Min(Tensor.Create(0.), a)
+        Tensor.Max(a.Zero(), a) + negativeSlope * Tensor.Min(a.Zero(), a)
     member t.LeakyRelu() = Tensor.LeakyRelu(t)
     member t.LeakyRelu(negativeSlope) = Tensor.LeakyRelu(t, negativeSlope)
 
