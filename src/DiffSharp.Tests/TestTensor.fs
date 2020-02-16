@@ -7,7 +7,10 @@ open System
 
 [<TestFixture>]
 type TestTensor () =
-    let dtypes = [DType.Float32; DType.Float64; DType.Int32]
+    // We run most tests at all these tensor types
+    let dtypes = [DType.Float32; DType.Float64; DType.Int32; DType.Int64]
+
+    // We run tests specific to floating point at these tensor types
     let dtypesF = [DType.Float32; DType.Float64]
 
     let dtypesAndOps =
@@ -106,6 +109,7 @@ type TestTensor () =
         let suffix = 
             match dtype with 
             | Int32 -> ""
+            | Int64 -> "L"
             | Float64 -> ".0"
             | Float32 -> ".0f"
         let t0StringCorrect = sprintf "Tensor 2%s" suffix

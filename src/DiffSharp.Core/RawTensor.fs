@@ -39,6 +39,7 @@ type DType =
     | Float32
     | Float64
     | Int32
+    | Int64
 
     member internal x.Code =
         match x with
@@ -46,6 +47,7 @@ type DType =
         | Float32  -> 0x100
         | Float64 -> 0x200
         | Int32 -> 0x400
+        | Int64 -> 0x800
 
     member internal x.Name =
         match x with
@@ -53,6 +55,7 @@ type DType =
         | Float32 -> "Float32"
         | Float64 -> "Float64"
         | Int32 -> "Int32"
+        | Int64 -> "Int64"
 
 type [<AbstractClass>]
      RawTensorStatics() = 
@@ -199,3 +202,11 @@ and [<AbstractClass>]
     abstract member AsinT: unit -> RawTensor
     abstract member AcosT: unit -> RawTensor
     abstract member AtanT: unit -> RawTensor
+
+[<AutoOpen>]
+module Utils =
+    let opNotSupported (t: DType) =
+        failwithf "operation not permitted on tensors of type %A" t
+
+    let opNotSupported2 (t1: DType) (t2: DType) =
+        failwithf "operation not permitted on tensors of type (%A, %A)" t1 t2
