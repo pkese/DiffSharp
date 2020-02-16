@@ -32,34 +32,34 @@ type TestTensor () =
     member this.Setup () =
         ()
 
-    [<Test>]
-    member this.TestTensorCreate () =
+    member this.TestTensorCreateGeneric (conv: double -> 'T) =
+      // Test creating these types of tensors
       for dtype in dtypes do 
-        let t0 = Tensor.Create(1., dtype=dtype)
+        let t0 = Tensor.Create(conv 1., dtype=dtype)
         let t0Shape = t0.Shape
         let t0Dim = t0.Dim
         let t0ShapeCorrect = [||]
         let t0DimCorrect = 0
 
-        let t1 = Tensor.Create([1.; 2.; 3.], dtype=dtype)
+        let t1 = Tensor.Create([conv 1.; conv 2.; conv 3.], dtype=dtype)
         let t1Shape = t1.Shape
         let t1Dim = t1.Dim
         let t1ShapeCorrect = [|3|]
         let t1DimCorrect = 1
 
-        let t2 = Tensor.Create([[1.; 2.; 3.]; [4.; 5.; 6.]], dtype=dtype)
+        let t2 = Tensor.Create([[conv 1.; conv 2.; conv 3.]; [conv 4.; conv 5.; conv 6.]], dtype=dtype)
         let t2Shape = t2.Shape
         let t2Dim = t2.Dim
         let t2ShapeCorrect = [|2; 3|]
         let t2DimCorrect = 2
 
-        let t3 = Tensor.Create([[[1.; 2.; 3.]; [4.; 5.; 6.]]], dtype=dtype)
+        let t3 = Tensor.Create([[[conv 1.; conv 2.; conv 3.]; [conv 4.; conv 5.; conv 6.]]], dtype=dtype)
         let t3Shape = t3.Shape
         let t3Dim = t3.Dim
         let t3ShapeCorrect = [|1; 2; 3|]
         let t3DimCorrect = 3
 
-        let t4 = Tensor.Create([[[[1.; 2.]]]], dtype=dtype)
+        let t4 = Tensor.Create([[[[conv 1.; conv 2.]]]], dtype=dtype)
         let t4Shape = t4.Shape
         let t4Dim = t4.Dim
         let t4ShapeCorrect = [|1; 1; 1; 2|]
@@ -84,6 +84,22 @@ type TestTensor () =
         assertEqual(t2Shape, t2ShapeCorrect)
         assertEqual(t3Shape, t3ShapeCorrect)
         assertEqual(t4Shape, t4ShapeCorrect)
+
+    [<Test>]
+    member this.TestTensorCreateFromFloat64() =
+        this.TestTensorCreateGeneric id
+
+    [<Test>]
+    member this.TestTensorCreateFromFloat32() =
+        this.TestTensorCreateGeneric float32
+
+    [<Test>]
+    member this.TestTensorCreateFromInt32() =
+        this.TestTensorCreateGeneric int32
+
+    [<Test>]
+    member this.TestTensorCreateFromInt64() =
+        this.TestTensorCreateGeneric int64
 
     [<Test>]
     member this.TestTensorToArray () =
