@@ -62,7 +62,7 @@ type RawTensorCPU<'T>(values: 'T[], shape: int[], dtype: DType) =
         slice bounds [||]
         t.CreateShaped(array, shape)
 
-    override t.Copy() = t.CreateShaped(Array.copy t.Values, Array.copy t.Shape)
+    override t.Clone() = t.CreateShaped(Array.copy t.Values, Array.copy t.Shape)
 
     override t.CreateFromScalar(value: obj, shape) =
         let value = value:?>'T
@@ -152,11 +152,10 @@ type RawTensorCPU<'T>(values: 'T[], shape: int[], dtype: DType) =
         if hasDuplicates dims then invalidOp <| sprintf "Expecting dims (list of dimension indices to flip) without repetition, received %A" dims
         if (Array.max dims) >= t.Dim then invalidOp <| sprintf "Expecting dims (list of dimension indices to flip) where all indices are less than the tensor dimension, received %A, %A" dims t.Dim
         match t.Dim with
-        | 0 -> t.Copy()
+        | 0 -> t.Clone()
         | _ ->
             let result = t.Zeros(t.Shape) :?> RawTensorCPU<'T>
             let rec flip (shape:int[]) externalCoords = 
-                let currentDim = t.Shape.Length - shape.Length
                 if shape.Length = 1 then
                     for i=0 to shape.[0]-1 do
                         let globalCoords = Array.append externalCoords [|i|]
@@ -450,7 +449,7 @@ module internal RawTensorCPU =
 
         // t1: input, NxCxI (batchSize x inputChannels, inputLength)
         // t2: filters, KxCxF (outputChannels x inputChannels, kernelLength)
-        if t1.Dim <> 3 || t2.Dim <> 3 then invalidOp <| sprintf "Expecting two 3d Tensors t1, t2 where t1 = input: NxCxI (batchSize x inputChannels, inputLength) and filters: KxCxF (outputChannels x inputChannels, kernelLength), received Tensors with shapes %A, %A" t1.Shape t2.Shape
+        if t1.Dim <> 3 || t2.Dim <> 3 then invalidOp <| sprintf "Expecting two 3d Tensors t1, t2 where t1 = input: NxCxI (batchSize x inputChannels x inputLength) and filters: KxCxF (outputChannels x inputChannels, kernelLength), received Tensors with shapes %A, %A" t1.Shape t2.Shape
         let t1 =
             if padding = 0 then
                 t1
