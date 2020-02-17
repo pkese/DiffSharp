@@ -130,8 +130,8 @@ type RawTensorCPU<'T>(values: 'T[], shape: int[], dtype: DType) =
         let n = t.Shape.[0]
         let unstackedShape = if t.Dim = 1 then [||] else t.Shape |> Array.skip 1
         let unstackedLength = shapeLength unstackedShape
-        Seq.init n (fun i -> Array.init unstackedLength (fun j -> t.Values.[i*unstackedLength+j]))
-        |> Seq.map (fun v -> t.CreateShaped(v, unstackedShape))
+        Array.init n (fun i -> Array.init unstackedLength (fun j -> t.Values.[i*unstackedLength+j]))
+        |> Array.map (fun v -> t.CreateShaped(v, unstackedShape))
 
     override t.TransposeT2() =
         if t.Dim <> 2 then invalidOp "Expecting a 2d Tensor"
@@ -430,17 +430,6 @@ module internal RawTensorCPU =
         let resultShape = [|t.Shape.[1]|]
         (result, resultShape)
 
-    let inline TransposeT2(t: RawTensorCPU< ^T >) : (^T[] * int[]) =
-        if t.Dim <> 2 then invalidOp "Expecting a 2d Tensor"
-        let trows = t.Shape.[0]
-        let tcols = t.Shape.[1]
-        let result = Array.zeroCreate (tcols*trows)
-        let vs = t.Values
-        for i in 0 .. tcols - 1 do 
-            for j in 0 .. trows - 1 do 
-                result.[i*trows + j] <- vs.[j*tcols + i]
-        (result, [| tcols; trows |])
-
     let inline Conv1D 
            // type-specific witness used to create tensors of the natural implementation type
            (createZeroTensor: int[] -> (^TensorImpl :> RawTensorCPU< ^T >)) 
@@ -630,7 +619,6 @@ type RawTensorFloat32CPU(values: float32[], shape:int[]) =
     override t.NegT() = RawTensorCPU.NegT(t) |> create
     override t.SumT() = RawTensorCPU.SumT(t) |> create
     override t.SumT2Dim0() = RawTensorCPU.SumT2Dim0(t) |> create
-    override t.TransposeT2() = RawTensorCPU.TransposeT2(t) |> create
     override t.SignT() = RawTensorCPU.SignT float32 t |> create
     override t.FloorT() = RawTensorCPU.FloorT(t) |> create
     override t.CeilT() = RawTensorCPU.CeilT(t) |> create
@@ -714,7 +702,6 @@ type RawTensorFloat64CPU(values: double[], shape:int[]) =
     override t.NegT() = RawTensorCPU.NegT(t) |> create
     override t.SumT() = RawTensorCPU.SumT(t) |> create
     override t.SumT2Dim0() = RawTensorCPU.SumT2Dim0(t) |> create
-    override t.TransposeT2() = RawTensorCPU.TransposeT2(t) |> create
     override t.SignT() = RawTensorCPU.SignT double t |> create
     override t.FloorT() = RawTensorCPU.FloorT(t) |> create
     override t.CeilT() = RawTensorCPU.CeilT(t) |> create
@@ -794,7 +781,6 @@ type RawTensorInt8CPU(values: int8[], shape:int[]) =
     override t.NegT() = RawTensorCPU.NegT(t) |> create
     override t.SumT() = RawTensorCPU.SumT(t) |> create
     override t.SumT2Dim0() = RawTensorCPU.SumT2Dim0(t) |> create
-    override t.TransposeT2() = RawTensorCPU.TransposeT2(t) |> create
     override t.SignT() = RawTensorCPU.SignT int8 t |> create
     override t.AbsT() = RawTensorCPU.AbsT(t) |> create
     override t.ReluT() = RawTensorCPU.ReluT(t) |> create
@@ -878,7 +864,6 @@ type RawTensorInt16CPU(values: int16[], shape:int[]) =
     override t.NegT() = RawTensorCPU.NegT(t) |> create
     override t.SumT() = RawTensorCPU.SumT(t) |> create
     override t.SumT2Dim0() = RawTensorCPU.SumT2Dim0(t) |> create
-    override t.TransposeT2() = RawTensorCPU.TransposeT2(t) |> create
     override t.SignT() = RawTensorCPU.SignT int16 t |> create
     override t.AbsT() = RawTensorCPU.AbsT(t) |> create
     override t.ReluT() = RawTensorCPU.ReluT(t) |> create
@@ -962,7 +947,6 @@ type RawTensorInt32CPU(values: int32[], shape:int[]) =
     override t.NegT() = RawTensorCPU.NegT(t) |> create
     override t.SumT() = RawTensorCPU.SumT(t) |> create
     override t.SumT2Dim0() = RawTensorCPU.SumT2Dim0(t) |> create
-    override t.TransposeT2() = RawTensorCPU.TransposeT2(t) |> create
     override t.SignT() = RawTensorCPU.SignT int32 t |> create
     override t.AbsT() = RawTensorCPU.AbsT(t) |> create
     override t.ReluT() = RawTensorCPU.ReluT(t) |> create
@@ -1046,7 +1030,6 @@ type RawTensorInt64CPU(values: int64[], shape:int[]) =
     override t.NegT() = RawTensorCPU.NegT(t) |> create
     override t.SumT() = RawTensorCPU.SumT(t) |> create
     override t.SumT2Dim0() = RawTensorCPU.SumT2Dim0(t) |> create
-    override t.TransposeT2() = RawTensorCPU.TransposeT2(t) |> create
     override t.SignT() = RawTensorCPU.SignT int64 t |> create
     override t.AbsT() = RawTensorCPU.AbsT(t) |> create
     override t.ReluT() = RawTensorCPU.ReluT(t) |> create
