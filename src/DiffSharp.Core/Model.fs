@@ -114,9 +114,16 @@ type Model() =
     static member (-->) (f:Tensor->Tensor, m:Model) = Model.create [m] (f >> m.forward)
     static member (-->) (t:Tensor, m:Model) = m.forward t
     member m.saveParameters(fileName) = m.parameters.save(fileName)
-    member m.loadParameters(fileName) = m.parameters <- Tensor.load(fileName)
+    member m.loadParameters(fileName) = 
+        m.parameters <- Tensor.load(fileName)
+        let _,device,backend = dsharp.config()
+        m.parametersDict.move(device=device,backend=backend)
     member m.save(fileName) = saveBinary m fileName
-    static member load(fileName):Model = loadBinary fileName
+    static member load(fileName):Model = 
+        let m : Model = loadBinary fileName
+        let _,device,backend = dsharp.config()
+        m.parametersDict.move(device=device,backend=backend)
+        m
     member m.clone() = 
         let fileName = System.IO.Path.GetTempFileName()
         m.save(fileName)
